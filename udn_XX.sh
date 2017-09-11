@@ -2,25 +2,25 @@
 
 ##### Beginning of Configuration
 
-SeqPlatform=    ### 1 Baylor, 2 Hudson Alpha
+SeqPlatform=	### 1 Baylor, 2 Hudson Alpha
 
 ProBand_ID=
-ProBand_Gender=     ### Male 1, Female 2
+ProBand_Gender=	### Male 1, Female 2
 
-ParentIDs=() ### use space to separate different IDs. If a parent is a nofilter ID, do not include it here.
+ParentIDs=() ### use space to separate different IDs ### If a parent is a nofilter ID, do not include it here.
 ParentGenders=()  ### use space to separate different Genders
 ParentAffStat=()   ### use space to separate different affected status
 
-BroSisIDs=( )   ### use space to separate different IDs
-BroSisGenders=( )    ### use space to separate different Genders
-BroSisAffStat=( )    ### use space to separate different affected status
+BroSisIDs=()   ### use space to separate different IDs
+BroSisGenders=()    ### use space to separate different Genders
+BroSisAffStat=()    ### use space to separate different affected status
 
 nofilterIDs=()  ### for testing purpose only ### allow one or more nofilter members.
 nofilterGender=()
 nofilterAffStat=() ### since the affect status is unambiguous, let's set it as 1.
 
-RAW_VCF_DIR=   ### Raw VCF directory, you'd better put all $UDN**.vcf under the same folder 
-WORK_DIR=    ### Working directory
+RAW_VCF_DIR=	### Raw VCF directory, you'd better put all $UDN**.vcf under the same folder 
+WORK_DIR=	### Working directory
 PhenoFile=
 
 ### Parameters
@@ -34,11 +34,13 @@ thStrict=1E-4
 
 ### make several directories
 
-PREPROCESS_DIR=$WORK_DIR/0_prepocessed_steps
+PREPROCESS_DIR=$WORK_DIR/0_preprocessed_steps
 FILTER_DIR=$WORK_DIR/1_filtered_steps
 IH_DIR=$WORK_DIR/2_ihFilter
 
 mkdir $PREPROCESS_DIR $FILTER_DIR $IH_DIR
+
+mkdir $IH_DIR\/prioritization
 
 ### Software Configurations & auxiliary files 
 
@@ -46,14 +48,10 @@ setpkgs -a R_3.2.2_gcc
 setpkgs -e java_1.8
 export R_LIBS="/home/pingj1/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS"
 export PATH=/home/pingj1/local/bin:$PATH
-
-CODES_DIR=/scratch/cqs/udn/codes/submodels # To be finalized OR set to your own folder cloned from GitHub
-
+CODES_DIR=/scratch/cqs/udn/codes/submodels # To be finalized
 ANNOVARDBDIR=/scratch/yuh9/software/annovar/humandb/
 AFfile=/scratch/cqs/udn/hg19_g1k2015_roh.tab.gz
 GNOMADdata=/scratch/cqs/udn/gnomad_freq.rdata
-GNOMADfile=/scratch/cqs/udn/gnomad_UDN000000_exomes.txt # Will be unnecessary soon
-EXACfile=/scratch/cqs/udn/exac_UDN000000_exac.txt # Has been deprecated.
 EXAC_metrics_file=/scratch/cqs/udn/fordist_cleaned_exac_r03_march16_z_pli_rec_null_data.txt
 APPRISfile=/scratch/cqs/udn/apprisP.refSeq.txt
 
@@ -69,19 +67,19 @@ if [[ -n ${nofilterIDs[@]} ]]; then
 fi
 ### preprocessing VCF files ###
 for IDs in $ProBand_ID "${FamilyIDs[@]}"; do
-    if [[ -f $RAW_VCF_DIR/$IDs\.vcf ]]; then
-        cp $RAW_VCF_DIR/$IDs.vcf $PREPROCESS_DIR/$IDs\.vcf
-    else
-        if [ $SeqPlatform -eq 1 ]; then
-            bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*SNPs.*vcf")" > $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
-            bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*INDELs.*vcf")" > $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
-            tabix -p vcf $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
-            tabix -p vcf $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
-            bcftools concat -a $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz -o $PREPROCESS_DIR/$IDs\.vcf
+        if [[ -f $RAW_VCF_DIR/$IDs\.vcf ]]; then
+                ln -s $RAW_VCF_DIR/$IDs.vcf $PREPROCESS_DIR/$IDs\.vcf
         else
-            cp "$(find $RAW_VCF_DIR -regex ".*$IDs.*vcf")" $PREPROCESS_DIR/$IDs\.vcf
+                if [ $SeqPlatform -eq 1 ]; then
+                        bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*SNPs.*vcf")" > $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
+                        bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*INDELs.*vcf")" > $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
+                        tabix -p vcf $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
+                        tabix -p vcf $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
+                        bcftools concat -a $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz -o $PREPROCESS_DIR/$IDs\.vcf
+                else
+                        ln -s "$(find $RAW_VCF_DIR -regex ".*$IDs.*vcf")" $PREPROCESS_DIR/$IDs\.vcf
+                fi
         fi
-    fi
 done
 
 ### Filter Probands
@@ -184,7 +182,10 @@ if [ ${#ParentAffStat[@]} -eq 2 ] && [ $((${ParentAffStat[0]} + ${ParentAffStat[
 	mv parFiltered.txt 0_${ParentIDs[0]}\_${ParentIDs[1]}_parFiltered.txt
 	unset FamilyIDs[0]
 	unset FamilyIDs[1]
+	unset FamilyAffStatus[0]
+	unset FamilyAffStatus[1]
 	FamilyIDs=("${FamilyIDs[@]}")
+	FamilyAffStatus=("${FamilyAffStatus[@]}")
 else
 	Rscript $CODES_DIR/$ihFilter impute $ProBand_ID\_step4.txt $thStrict
 	cp $ProBand_ID\_parFiltered.txt $ProBand_ID\_tmpFiltered.txt
@@ -217,14 +218,14 @@ do
 	
 done
 mv $IH_DIR\/$ProBand_ID\_tmpFiltered.txt $IH_DIR\/$ProBand_ID\_finalFiltered.txt
-############ Phenolyzer prioritization ########
-mkdir $IH_DIR/prioritization
-tail -n +2 $IH_DIR\/$ProBand_ID\_finalFiltered.txt | cut -f 3 | sort | uniq > prioritization/$ProBand_ID\_candGenes.txt
-sed -i '/,/s/,.*//' prioritization/$ProBand_ID\_candGenes.txt
-cp $PhenoFile prioritization/$ProBand_ID\_terms.txt
-disease_annotation.pl prioritization/$ProBand_ID\_terms.txt -f -p -ph -logistic --gene prioritization/$ProBand_ID\_candGenes.txt -out prioritization/$ProBand_ID 2>prioritization/phenolyzer.log
-Rscript $CODES_DIR/prio_cmm.R $IH_DIR/prioritization/$ProBand_ID $IH_DIR/$ProBand_ID
 
+############ Phenolyzer prioritization ########
+
+tail -n +2 $IH_DIR\/$ProBand_ID\_finalFiltered.txt | cut -f 3 | sort | uniq > $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt
+sed -i '/,/s/,.*//' $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt
+cp $PhenoFile $IH_DIR\/prioritization\/$ProBand_ID\_terms.txt
+/scratch/yuh9/software/phenolyzer/disease_annotation.pl $IH_DIR\/prioritization\/$ProBand_ID\_terms.txt -f -p -ph -logistic --gene $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt -out $IH_DIR\/prioritization\/$ProBand_ID 2> $IH_DIR\/prioritization\/phenolyzer.log
+Rscript $CODES_DIR/prio_cmm.R $IH_DIR\/prioritization\/$ProBand_ID $IH_DIR\/$ProBand_ID
 
 ### splicing scores ####
 while IFS='' read line || [[ -n "$line" ]]; do
@@ -239,7 +240,7 @@ while IFS='' read line || [[ -n "$line" ]]; do
 		score5=`$CODES_DIR/splicing.sh $varID 5`
 		score3=`$CODES_DIR/splicing.sh $varID 3`
 		score8="$score3\t$score5"
-		paste splicing/$varID.score3 splicing/$varID.score5 > splicing/$varID.score
+		paste splicing\/$varID.score3 splicing\/$varID.score5 > splicing\/$varID.score
 	else
 		score8="\t\t\t\t\t\t\t"
 	fi
@@ -248,7 +249,7 @@ done < $IH_DIR\/$ProBand_ID\_prioCmmed.txt
 
 ### Generate xlxs table
 
-Rscript $CODES_DIR/convertFormat.R $WORK_DIR/$ProBand_ID\_spliceScored.txt $SeqPlatform
+Rscript $CODES_DIR\/convertFormat.R $WORK_DIR\/$ProBand_ID\_spliceScored.txt $SeqPlatform
 
 echo "JOB DONE!"
 
