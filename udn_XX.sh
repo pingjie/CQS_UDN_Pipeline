@@ -48,7 +48,7 @@ setpkgs -a R_3.2.2_gcc
 setpkgs -e java_1.8
 export R_LIBS="/home/pingj1/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS"
 export PATH=/home/pingj1/local/bin:$PATH
-CODES_DIR=/scratch/cqs/udn/codes/submodels # To be finalized
+CODES_DIR=/workspace/pingj1/soft/CQS_UDN_Pipeline/submodels # To be finalized
 ANNOVARDBDIR=/scratch/yuh9/software/annovar/humandb/
 AFfile=/scratch/cqs/udn/hg19_g1k2015_roh.tab.gz
 GNOMADdata=/scratch/cqs/udn/gnomad_freq.rdata
