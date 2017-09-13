@@ -221,10 +221,13 @@ mv $IH_DIR\/$ProBand_ID\_tmpFiltered.txt $IH_DIR\/$ProBand_ID\_finalFiltered.txt
 
 ############ Phenolyzer prioritization ########
 
+cd $IH_DIR
+
 tail -n +2 $IH_DIR\/$ProBand_ID\_finalFiltered.txt | cut -f 3 | sort | uniq > $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt
 sed -i '/,/s/,.*//' $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt
 cp $PhenoFile $IH_DIR\/prioritization\/$ProBand_ID\_terms.txt
-/scratch/yuh9/software/phenolyzer/disease_annotation.pl $IH_DIR\/prioritization\/$ProBand_ID\_terms.txt -f -p -ph -logistic --gene $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt -out $IH_DIR\/prioritization\/$ProBand_ID 2> $IH_DIR\/prioritization\/phenolyzer.log
+
+/scratch/yuh9/software/phenolyzer/disease_annotation.pl prioritization\/$ProBand_ID\_terms.txt -f -p -ph -logistic --gene prioritization\/$ProBand_ID\_candGenes.txt -out prioritization\/$ProBand_ID 2> prioritization\/phenolyzer.log
 Rscript $CODES_DIR/prio_cmm.R $IH_DIR\/prioritization\/$ProBand_ID $IH_DIR\/$ProBand_ID
 
 ### splicing scores ####
