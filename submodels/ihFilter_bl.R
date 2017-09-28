@@ -141,7 +141,7 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-5,Gender=1) {
         cat(sum(ix.arch),' AR-ch variants for ',length(unique(pro[ix.arch,'geneName'])),' genes\n')
 	#ix.keep <- (ix.denovo|ix.ars|ix.arch)
 	#ix.drop <- !ix.keep
-	ihMode <- rep(NA,nrow(pro))
+	ihMode <- character(nrow(pro))
 	ihMode[ix.denovo] <- 'deNovo'
 	ihMode[ix.ars] <- 'ARs'
 	ihMode[ix.arch] <- 'ARch'

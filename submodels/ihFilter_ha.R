@@ -203,7 +203,7 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	}
 	#ix.keep <- (ix.denovo|ix.ars|ix.arch)
 	#ix.drop <- !ix.keep
-	ihMode <- rep(NA,nrow(pro))
+	ihMode <- character(nrow(pro))
 	ihMode[ix.denovo] <- 'deNovo'
 	ihMode[ix.ars] <- 'ARs'
 	ihMode[arch.Indices$tier1] <- 'ARch.tier1'
