@@ -50,12 +50,16 @@ colnames(annovar)[(ncol(annovar) - 4):ncol(annovar)] <- c("exacFreq", "espFreq",
 exacMetrics <- prev[exac & esp & g1k & gnomAD, c("mis_z", "pLI", "Otherinfo")]
 colnames(exacMetrics)[ncol(exacMetrics)] <- 'GT'
 
-curr <- cbind(varID = rownames(prev)[exac & esp & g1k & gnomAD], prev[exac & esp & g1k & gnomAD, 6:10], annovar, exacMetrics)
+curr <- cbind(varID = rownames(prev)[exac & esp & g1k & gnomAD], prev[exac & esp & g1k & gnomAD, 5:11], annovar, exacMetrics)
 write.table(curr, paste0(udnID, '_step4.1.txt'), row.names = F, sep = '\t', quote = F)
 
 colnames(freq) <- c("varID", "gnomadAF", "gnomadHom", "gnomadHemi")
 
 step4.2 <- merge(curr, freq, by.x = "varID", by.y = "varID", all.x = T)
+
+step4.2$gnomadHom <- as.numeric(step4.2$gnomadHom)
+step4.2$gnomadHemi <- as.numeric(step4.2$gnomadHemi)
+step4.2$gnomadAF <- as.numeric(step4.2$gnomadAF)
 
 step4.2 <- step4.2[(step4.2$gnomadHom < n_Homo | is.na(step4.2$gnomadHom)) & (step4.2$gnomadHemi < n_Homo | is.na(step4.2$gnomadHemi)), ]
 step4.2 <- step4.2[step4.2$gnomadAF <= th | is.na(step4.2$gnomadAF), ]

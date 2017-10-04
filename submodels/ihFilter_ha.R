@@ -158,10 +158,10 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	proID.start <- regexpr('UDN\\d+',previous,perl=T,ignore.case=T)
 	proID <- substr(previous,proID.start,proID.start+8)
 	pro <- read.delim(previous,as.is=T,header=T)
-        inROH <- pro[,'inROH'] #updated
-        pro <- pro[,setdiff(colnames(pro),'inROH')] #updated
-        pro$gnomADexomeFreq <- as.numeric(pro$gnomADexomeFreq)
-        pro$gnomADgenomeFreq <- as.numeric(pro$gnomADgenomeFreq)
+    inROH <- pro[,'inROH'] #updated
+    pro <- pro[,setdiff(colnames(pro),'inROH')] #updated
+    pro$gnomADexomeFreq <- as.numeric(pro$gnomADexomeFreq)
+    pro$gnomADgenomeFreq <- as.numeric(pro$gnomADgenomeFreq)
 	rownames(pro) <- pro[,'varID']
 	colnames(pro)[3] <- 'geneName' ### GeneDetail.refGene
 	dad <- paste0(dadID,'_step0.txt')
@@ -169,7 +169,7 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	mom <- paste0(momID,'_step0.txt')
 	mom <- read.delim(mom,as.is=T,header=F,quote='')
 	dad.rnms <- paste('var',dad[,1],dad[,2],dad[,3],dad[,4],dad[,5],sep='_') 
-        mom.rnms <- paste('var',mom[,1],mom[,2],mom[,3],mom[,4],mom[,5],sep='_')
+    mom.rnms <- paste('var',mom[,1],mom[,2],mom[,3],mom[,4],mom[,5],sep='_')
 	dad <- cbind(dad.rnms,dad[,6])
 	mom <- cbind(mom.rnms,mom[,6])
 	proGT <- pro[,c('varID','GT')]
