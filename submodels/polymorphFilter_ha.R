@@ -53,15 +53,17 @@ colnames(exacMetrics)[ncol(exacMetrics)] <- 'GT'
 curr <- cbind(varID = rownames(prev)[exac & esp & g1k & gnomAD], prev[exac & esp & g1k & gnomAD, 6:10], annovar, exacMetrics)
 write.table(curr, paste0(udnID, '_step4.1.txt'), row.names = F, sep = '\t', quote = F)
 
-step4.2 <- merge(prev, freq, by.x = "varID", by.y = "varID", all.x = T)
+colnames(freq) <- c("varID", "gnomadAF", "gnomadHom", "gnomadHemi")
 
-step4.2 <- step4.2[(step4.2$Hom < n_Homo | is.na(step4.2$Hom)) & (step4.2$Hemi < n_Homo | is.na(step4.2$Hemi)), ]
-step4.2 <- step4.2[step4.2$AF <= th | is.na(step4.2$AF), ]
+step4.2 <- merge(curr, freq, by.x = "varID", by.y = "varID", all.x = T)
+
+step4.2 <- step4.2[(step4.2$gnomadHom < n_Homo | is.na(step4.2$gnomadHom)) & (step4.2$gnomadHemi < n_Homo | is.na(step4.2$gnomadHemi)), ]
+step4.2 <- step4.2[step4.2$gnomadAF <= th | is.na(step4.2$gnomadAF), ]
 write.table(step4.2, paste0(udnID, "_step4.2.txt"), row.names = F, sep = '\t' , quote = F)
 
 snp138.ix <- which(colnames(step4.2) == "snp138")
 curr1 <- step4.2[, 1:snp138.ix]
 curr2 <- step4.2[, (snp138.ix + 1):(ncol(step4.2) - 3)]
-curr <- cbind(curr1, step4.2[, c("AF", "Hom", "Hemi")], curr2) #step4.2[,1:(ncol(step4.2)-2)]#:ncol(step4.2)]
+curr <- cbind(curr1, step4.2[, c("gnomadAF", "gnomadHom", "gnomadHemi")], curr2) #step4.2[,1:(ncol(step4.2)-2)]#:ncol(step4.2)]
 write.table(curr, paste0(udnID, "_step4.txt"), row.names = F, sep = '\t', quote = F)
 
