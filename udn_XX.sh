@@ -153,9 +153,9 @@ do
 		convert2annovar.pl --format vcf4 --filter PASS --withzyg --includeinfo $PREPROCESS_DIR/${FamilyIDs[i]}\.vcf > $FILTER_DIR/${FamilyIDs[i]}\_step1.txt
 
 		if [ $SeqPlatform -eq 1 ]; then
-			perl $CODES_DIR/strandRatio_bl.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt $StrandRatioCutOff
+			perl $CODES_DIR/strandRatio_bl.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt
 		else
-			perl $CODES_DIR/strandRatio_ha.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt $StrandRatioCutOff
+			perl $CODES_DIR/strandRatio_ha.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt
 		fi
 	else
 		convert2annovar.pl --format vcf4 --withzyg $PREPROCESS_DIR/${FamilyIDs[i]}\.vcf > $FILTER_DIR/${FamilyIDs[i]}\_step0.txt
