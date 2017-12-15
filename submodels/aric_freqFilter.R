@@ -6,7 +6,7 @@ aric_freqFilter <- function(previous,freqFile,th=0.0001,step=4.1) {
 	proID.start <- regexpr('UDN\\d+',previous,perl=T,ignore.case=T)
 	proID <- substr(previous,proID.start,proID.start+8)
         freq <- read.table(freqFile,header=T,as.is=T,sep='\t',quote='')
-        prev <- read.delim(previous,header=T,as.is=T,colClasses=c(Ref='character',Alt='character'),sep='\t',quote='') # previous file is ANNOVAR-streamlined step3 file.
+        prev <- read.table(previous,header=T,as.is=T,sep='\t',quote='') # previous file is ANNOVAR-streamlined step3 file.
         varID <- paste('var',prev[,1],prev[,2],prev[,3],prev[,4],prev[,5],sep='_') 
         prev <- data.frame(varID=varID,prev[,6:ncol(prev)])
         var2freq <- data.frame(varID=freq$varID,freqAA=freq$ARIC_AA,freqEA=freq$ARIC_EA)
