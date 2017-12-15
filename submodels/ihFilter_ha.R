@@ -20,7 +20,7 @@ ARch_common <- function(GT3,gene,gFunc) { #combined: var table for one individua
 	gene.2 <- names(varsInGene.2)[sapply(varsInGene.2,length)>1]
 	sharedGenes <- intersect(intersect(gene,gene.1),gene.2)
 	gFunc1 <- gFunc[GT3[,2]=='het']
-	gFunc2 <- gFunc[GT3[,2]=='het']
+	gFunc2 <- gFunc[GT3[,3]=='het']
 	exonicExistent <- function(gFunc) sum(gFunc=='exonic' | gFunc=='splicing' | gFunc=='exonic;splicing')>0
 	exonicMeet1 <- tapply(gFunc1,fct1,exonicExistent)
 	exonicMeet2 <- tapply(gFunc2,fct2,exonicExistent)
@@ -158,10 +158,10 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	proID.start <- regexpr('UDN\\d+',previous,perl=T,ignore.case=T)
 	proID <- substr(previous,proID.start,proID.start+8)
 	pro <- read.delim(previous,as.is=T,header=T)
-    inROH <- pro[,'inROH'] #updated
-    pro <- pro[,setdiff(colnames(pro),'inROH')] #updated
-    pro$gnomADexomeFreq <- as.numeric(pro$gnomADexomeFreq)
-    pro$gnomADgenomeFreq <- as.numeric(pro$gnomADgenomeFreq)
+	inROH <- pro[,'inROH'] #updated
+    	pro <- pro[,setdiff(colnames(pro),'inROH')] #updated
+    	pro$gnomADexomeFreq <- as.numeric(pro$gnomADexomeFreq)
+    	pro$gnomADgenomeFreq <- as.numeric(pro$gnomADgenomeFreq)
 	rownames(pro) <- pro[,'varID']
 	colnames(pro)[3] <- 'geneName' ### GeneDetail.refGene
 	dad <- paste0(dadID,'_step0.txt')
@@ -169,7 +169,7 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	mom <- paste0(momID,'_step0.txt')
 	mom <- read.delim(mom,as.is=T,header=F,quote='')
 	dad.rnms <- paste('var',dad[,1],dad[,2],dad[,3],dad[,4],dad[,5],sep='_') 
-    mom.rnms <- paste('var',mom[,1],mom[,2],mom[,3],mom[,4],mom[,5],sep='_')
+    	mom.rnms <- paste('var',mom[,1],mom[,2],mom[,3],mom[,4],mom[,5],sep='_')
 	dad <- cbind(dad.rnms,dad[,6])
 	mom <- cbind(mom.rnms,mom[,6])
 	proGT <- pro[,c('varID','GT')]
@@ -219,9 +219,9 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
         cat(sum(tempIx),' inROH variants (sex-chr variants are imprecise)\n')
 	##### Impose X-linked filtration if it is a male proband ############
 	pro.expanded <- data.frame(pro,GT3[,-1],ihMode=ihMode)
-	kept <- pro.expanded[!is.na(ihMode),]
+	kept <- pro.expanded[nchar(ihMode) > 0, ]
 	kept <- kept[order(kept$ihMode),]
-	dropped <- pro.expanded[is.na(ihMode),]
+	dropped <- pro.expanded[nchar(ihMode) == 0, ]
         write.table(kept,paste0(proID,'_parFiltered.txt'),row.names=F,sep='\t',quote=F)
 	write.table(dropped,'parFiltered.txt',row.names=F,sep='\t',quote=F)
 }
