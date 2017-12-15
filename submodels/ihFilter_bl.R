@@ -153,10 +153,10 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-5,Gender=1) {
                 cat(sum(ix.xlinked),' X-linked variants\n')
                 ihMode[ix.xlinked] <- 'Xlinked'
         }
-	pro.expanded <- data.frame(pro,GT3[,-1],ihMode=ihMode)
-	kept <- pro.expanded[!is.na(ihMode),]
+	pro.expanded <- data.frame(pro, GT3[, -1], ihMode = ihMode)
+	kept <- pro.expanded[nchar(ihMode) > 0, ]
 	kept <- kept[order(kept$ihMode),]
-	dropped <- pro.expanded[is.na(ihMode),]
+	dropped <- pro.expanded[nchar(ihMode) == 0, ]
         write.table(kept,paste0(proID,'_parFiltered.txt'),row.names=F,sep='\t',quote=F)
 	write.table(dropped,'parFiltered.txt',row.names=F,sep='\t',quote=F)
 }
