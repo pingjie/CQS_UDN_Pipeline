@@ -49,7 +49,7 @@ setpkgs -e java_1.8
 export R_LIBS="/home/pingj1/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS"
 export PATH=/home/pingj1/local/bin:$PATH
 CODES_DIR=/workspace/pingj1/soft/CQS_UDN_Pipeline/submodels # To be finalized
-ANNOVARDBDIR=/scratch/yuh9/software/annovar/humandb/
+ANNOVARDBDIR=/scratch/cqs/udn/annovar/humandb/
 AFfile=/scratch/cqs/udn/hg19_g1k2015_roh.tab.gz
 GNOMADdata=/scratch/cqs/udn/gnomad_freq.rdata
 EXAC_metrics_file=/scratch/cqs/udn/fordist_cleaned_exac_r03_march16_z_pli_rec_null_data.txt
@@ -67,19 +67,7 @@ if [[ -n ${nofilterIDs[@]} ]]; then
 fi
 ### preprocessing VCF files ###
 for IDs in $ProBand_ID "${FamilyIDs[@]}"; do
-        if [[ -f $RAW_VCF_DIR/$IDs\.vcf ]]; then
-                ln -s $RAW_VCF_DIR/$IDs.vcf $PREPROCESS_DIR/$IDs\.vcf
-        else
-                if [ $SeqPlatform -eq 1 ]; then
-                        bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*SNPs.*vcf")" > $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
-                        bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*INDELs.*vcf")" > $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
-                        tabix -p vcf $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
-                        tabix -p vcf $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
-                        bcftools concat -a $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz -o $PREPROCESS_DIR/$IDs\.vcf
-                else
-                        ln -s "$(find $RAW_VCF_DIR -regex ".*$IDs.*vcf")" $PREPROCESS_DIR/$IDs\.vcf
-                fi
-        fi
+	ln -s $RAW_VCF_DIR/$IDs.vcf $PREPROCESS_DIR/$IDs\.vcf
 done
 
 ### Filter Probands
@@ -129,7 +117,7 @@ else
 
 	Rscript $CODES_DIR/eseIndel_freqFilter.R $ProBand_ID\_step4.1.txt $ProBand_ID\_ESEindel.txt $th
 
-	Rscript $CODES_DIR/gnomad_freqFilter.R $ProBand_ID\_step4.2.txt $th $n_Homo $GNOMADdata
+	Rscript $CODES_DIR/gnomad_freqFilter.R $ProBand_ID\_step4.2.txt $th $n_Homo
 
 	Rscript $CODES_DIR/bulk4_freqFilter.R $ProBand_ID\_step4.3.txt $th
 fi
