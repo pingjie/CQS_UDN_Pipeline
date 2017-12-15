@@ -144,7 +144,7 @@ writeModeBlock <- function(ihType, variants, sheet, startrow, template, mergecol
 #INPUT platform: 1 for Baylor, 2 for Hudson Alpha
 convertFormat <- function(filename, platform) {
   platform <- as.character(platform)
-  data <- read.table(filename, header = T, as.is = T, fill = T, sep = "\t")
+  data <- read.table(filename, header = T, as.is = T, fill = T, sep = "\t", quote = "")
   data <- data[order(data$geneName), ] ## UPDATED by Hui 06/02/2017
   outputfile <- gsub(".txt", ".formatted.xlsx", filename)
 
