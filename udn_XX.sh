@@ -117,7 +117,7 @@ else
 
 	Rscript $CODES_DIR/eseIndel_freqFilter.R $ProBand_ID\_step4.1.txt $ProBand_ID\_ESEindel.txt $th
 
-	Rscript $CODES_DIR/gnomad_freqFilter.R $ProBand_ID\_step4.2.txt $th $n_Homo
+	Rscript $CODES_DIR/gnomad_freqFilter.R $ProBand_ID\_step4.2.txt $th $n_Homo $GNOMADdata
 
 	Rscript $CODES_DIR/bulk4_freqFilter.R $ProBand_ID\_step4.3.txt $th
 fi
