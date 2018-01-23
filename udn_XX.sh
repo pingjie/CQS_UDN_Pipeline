@@ -105,7 +105,7 @@ mv $FILTER_DIR\/$ProBand_ID.annovar.txt $WORK_DIR
 
 Rscript $CODES_DIR/collateExacMetrics.R $FILTER_DIR/$ProBand_ID\_step3.0.txt $EXAC_metrics_file
 if [ $SeqPlatform -eq 2 ]; then
-	Rscript $CODES_DIR/polymorphFilter_ha.R $ProBand_ID\_step3.txt $th $n_Homo
+	Rscript $CODES_DIR/polymorphFilter_ha.R $ProBand_ID\_step3.txt $th $n_Homo $GNOMADdata
 else
 	perl $CODES_DIR/extract_fields_from_vcf.pl $PREPROCESS_DIR/$ProBand_ID\.vcf ARIC_AA,ARIC_EA
 	mv $FILTER_DIR/$ProBand_ID\_ARIC_AA,ARIC_EA.tab $FILTER_DIR/$ProBand_ID\_aric.txt
