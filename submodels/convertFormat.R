@@ -4,6 +4,16 @@ if (!require('xlsx')) {
 	stop('The package xlsx was not installed')
 }
 
+is.empty <- function(x, mode=NULL){
+  if (is.null(mode)) mode <- class(x)
+  identical(vector(mode,1),c(x,vector(class(x),1)))
+}
+
+library(data.table)
+library(stringr)
+
+geneomim <- fread("/scratch/cqs/udn/genemap2.txt")
+
 processline<-function(x){
 	loc<-unlist(strsplit(x$varID,"_"))
 	chr<-paste("chr",loc[2],sep="")
@@ -23,6 +33,23 @@ processline<-function(x){
 
 	udnGT[unlist(lapply(udnGT,is.null))]<-NA
 	comment <- x$comment
+	for (n in 1:length(comment)) {
+  		if( !is.empty(which(geneomim$Approved_Symbol == genename[n])) ) {
+    		if ( geneomim$Phenotypes[which(geneomim$Approved_Symbol == genename[n])] != "") {
+      			phenotypeOMIM <- geneomim$Phenotypes[which(geneomim$Approved_Symbol == genename[n])]
+      			tmp <- strsplit(phenotypeOMIM, ", ")[[1]]
+      			for (t in 1:length(tmp)) {
+        			if (str_detect(tmp[t], "\\d+ \\(\\d\\)")) {
+          				tmp[t] <- paste0("MIM:", strsplit(tmp[t], " ")[[1]][1])
+        			}
+      			}
+      			phenotypeOMIM <- paste(tmp, collapse = ", ")
+      
+      			comment[n] <- paste0(phenotypeOMIM, " || ", comment[n])
+    		}
+  		}
+	}
+
 	rank <- x$Rank
 	if (x$Func.refGene =="exonic") {
 		effect<-x$ExonicFunc.refGene 
