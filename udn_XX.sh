@@ -67,7 +67,7 @@ if [[ -n ${nofilterIDs[@]} ]]; then
 fi
 ### preprocessing VCF files ###
 for IDs in $ProBand_ID "${FamilyIDs[@]}"; do
-	ln -s $RAW_VCF_DIR/$IDs.vcf $PREPROCESS_DIR/$IDs\.vcf
+	ln -s $RAW_VCF_DIR/${IDs}*.vcf $PREPROCESS_DIR/$IDs\.vcf
 done
 
 ### Filter Probands
