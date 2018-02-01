@@ -169,7 +169,7 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	mom <- paste0(momID,'_step0.txt')
 	mom <- read.delim(mom,as.is=T,header=F,quote='')
 	dad.rnms <- paste('var',dad[,1],dad[,2],dad[,3],dad[,4],dad[,5],sep='_') 
-    	mom.rnms <- paste('var',mom[,1],mom[,2],mom[,3],mom[,4],mom[,5],sep='_')
+    mom.rnms <- paste('var',mom[,1],mom[,2],mom[,3],mom[,4],mom[,5],sep='_')
 	dad <- cbind(dad.rnms,dad[,6])
 	mom <- cbind(mom.rnms,mom[,6])
 	proGT <- pro[,c('varID','GT')]
@@ -208,15 +208,15 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	ihMode[ix.ars] <- 'ARs'
 	ihMode[arch.Indices$tier1] <- 'ARch.tier1'
 	ihMode[arch.Indices$tier2] <- 'ARch.tier2'
-        if (Gender==1) {
-                ix.xlinked <- grepl('var_X_',rownames(GT3)) & pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') & GT3[,1]!='wdt' & GT3[,3]!='wdt' & GT3[,2]!=GT3[,1] # Mom and son must be non-wdt; Dad must be different from son (usually wdt, or het when son is hom).
-                cat(sum(ix.xlinked),' X-linked variants\n')
-                ihMode[ix.xlinked] <- 'Xlinked'
-        }
-        tempIx <- inROH==1&pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') # ROH variants are confined to those within coding regions.
+	if (Gender==1) {
+		ix.xlinked <- grepl('var_X_',rownames(GT3)) & pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') & GT3[,1]!='wdt' & GT3[,3]!='wdt' & GT3[,2]!=GT3[,1] # Mom and son must be non-wdt; Dad must be different from son (usually wdt, or het when son is hom).
+		cat(sum(ix.xlinked),' X-linked variants\n')
+		ihMode[ix.xlinked] <- 'Xlinked'
+	}
+	tempIx <- inROH==1&pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') # ROH variants are confined to those within coding regions.
 	ihMode[tempIx] <- paste('inROH', ihMode[tempIx])
         #ihMode[inROH==1&pro$Func.refGene%in%c('exonic','splicing','exonic;splicing')] <- 'inROH'
-        cat(sum(tempIx),' inROH variants (sex-chr variants are imprecise)\n')
+	cat(sum(tempIx),' inROH variants (sex-chr variants are imprecise)\n')
 	##### Impose X-linked filtration if it is a male proband ############
 	pro.expanded <- data.frame(pro,GT3[,-1],ihMode=ihMode)
 	kept <- pro.expanded[nchar(ihMode) > 0, ]
