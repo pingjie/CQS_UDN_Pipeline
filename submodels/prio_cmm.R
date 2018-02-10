@@ -171,14 +171,14 @@ for (i in 1:length(genes)) {
 }
 
 candTbl <- data.frame(candTbl,comment=statements)
-seedGenes <- candTbl$Gene[candTbl$Status=='SeedGene']
+#seedGenes <- candTbl$Gene[candTbl$Status=='SeedGene']
 filteredTbl <- read.delim(paste0(udnID,'_finalFiltered.txt'),as.is=T) ## read in udnID_finalFiltered.txt file.
-if (is.element('ARch.tier2',filteredTbl$ihMode)) { ## Filter out useless ARch.tier2 variants, keeping only Phenolyzer seedGene variants.
-	if (sum(candTbl$Status=='SeedGene')>0)
-		filteredTbl <- filteredTbl[filteredTbl$ihMode!='ARch.tier2'|filteredTbl$geneName%in%seedGenes,]
-	else
-		filteredTbl <- filteredTbl[filteredTbl$ihMode!='ARch.tier2',]
-} 
+#if (is.element('ARch.tier2',filteredTbl$ihMode)) { ## Filter out useless ARch.tier2 variants, keeping only Phenolyzer seedGene variants.
+#	if (sum(candTbl$Status=='SeedGene')>0)
+#		filteredTbl <- filteredTbl[filteredTbl$ihMode!='ARch.tier2'|filteredTbl$geneName%in%seedGenes,]
+#	else
+#		filteredTbl <- filteredTbl[filteredTbl$ihMode!='ARch.tier2',]
+#} 
 cmmedTbl <- merge(filteredTbl,candTbl,by.x='geneName',by.y='Gene',all.x=T)
 colnames(cmmedTbl)[1] <- 'geneName'
 if (  sum(grepl(',',cmmedTbl$geneName))>0  ) {

@@ -20,7 +20,7 @@ ARch_common <- function(GT3,gene,gFunc) { #combined: var table for one individua
 	gene.2 <- names(varsInGene.2)[sapply(varsInGene.2,length)>1]
 	sharedGenes <- intersect(intersect(gene,gene.1),gene.2)
 	gFunc1 <- gFunc[GT3[,2]=='het']
-	gFunc2 <- gFunc[GT3[,2]=='het']
+	gFunc2 <- gFunc[GT3[,3]=='het']
 	exonicExistent <- function(gFunc) sum(gFunc=='exonic' | gFunc=='splicing' | gFunc=='exonic;splicing')>0
 	exonicMeet1 <- tapply(gFunc1,fct1,exonicExistent)
 	exonicMeet2 <- tapply(gFunc2,fct2,exonicExistent)
@@ -158,10 +158,10 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	proID.start <- regexpr('UDN\\d+',previous,perl=T,ignore.case=T)
 	proID <- substr(previous,proID.start,proID.start+8)
 	pro <- read.delim(previous,as.is=T,header=T)
-    inROH <- pro[,'inROH'] #updated
-    pro <- pro[,setdiff(colnames(pro),'inROH')] #updated
-    pro$gnomADexomeFreq <- as.numeric(pro$gnomADexomeFreq)
-    pro$gnomADgenomeFreq <- as.numeric(pro$gnomADgenomeFreq)
+	inROH <- pro[,'inROH'] #updated
+    	pro <- pro[,setdiff(colnames(pro),'inROH')] #updated
+    	pro$gnomADexomeFreq <- as.numeric(pro$gnomADexomeFreq)
+    	pro$gnomADgenomeFreq <- as.numeric(pro$gnomADgenomeFreq)
 	rownames(pro) <- pro[,'varID']
 	colnames(pro)[3] <- 'geneName' ### GeneDetail.refGene
 	dad <- paste0(dadID,'_step0.txt')
@@ -208,20 +208,20 @@ ihFilter_par2pro <- function(previous,dadID,momID,thStrict=1E-4,Gender=1) {
 	ihMode[ix.ars] <- 'ARs'
 	ihMode[arch.Indices$tier1] <- 'ARch.tier1'
 	ihMode[arch.Indices$tier2] <- 'ARch.tier2'
-        if (Gender==1) {
-                ix.xlinked <- grepl('var_X_',rownames(GT3)) & pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') & GT3[,1]!='wdt' & GT3[,3]!='wdt' & GT3[,2]!=GT3[,1] # Mom and son must be non-wdt; Dad must be different from son (usually wdt, or het when son is hom).
-                cat(sum(ix.xlinked),' X-linked variants\n')
-                ihMode[ix.xlinked] <- 'Xlinked'
-        }
-        tempIx <- inROH==1&pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') # ROH variants are confined to those within coding regions.
+	if (Gender==1) {
+		ix.xlinked <- grepl('var_X_',rownames(GT3)) & pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') & GT3[,1]!='wdt' & GT3[,3]!='wdt' & GT3[,2]!=GT3[,1] # Mom and son must be non-wdt; Dad must be different from son (usually wdt, or het when son is hom).
+		cat(sum(ix.xlinked),' X-linked variants\n')
+		ihMode[ix.xlinked] <- 'Xlinked'
+	}
+	tempIx <- inROH==1&pro$Func.refGene%in%c('exonic','splicing','exonic;splicing') # ROH variants are confined to those within coding regions.
 	ihMode[tempIx] <- paste('inROH', ihMode[tempIx])
         #ihMode[inROH==1&pro$Func.refGene%in%c('exonic','splicing','exonic;splicing')] <- 'inROH'
-        cat(sum(tempIx),' inROH variants (sex-chr variants are imprecise)\n')
+	cat(sum(tempIx),' inROH variants (sex-chr variants are imprecise)\n')
 	##### Impose X-linked filtration if it is a male proband ############
 	pro.expanded <- data.frame(pro,GT3[,-1],ihMode=ihMode)
-	kept <- pro.expanded[!is.na(ihMode),]
+	kept <- pro.expanded[nchar(ihMode) > 0, ]
 	kept <- kept[order(kept$ihMode),]
-	dropped <- pro.expanded[is.na(ihMode),]
+	dropped <- pro.expanded[nchar(ihMode) == 0, ]
         write.table(kept,paste0(proID,'_parFiltered.txt'),row.names=F,sep='\t',quote=F)
 	write.table(dropped,'parFiltered.txt',row.names=F,sep='\t',quote=F)
 }

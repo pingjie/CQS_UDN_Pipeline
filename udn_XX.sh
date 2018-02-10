@@ -49,7 +49,7 @@ setpkgs -e java_1.8
 export R_LIBS="/home/pingj1/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS"
 export PATH=/home/pingj1/local/bin:$PATH
 CODES_DIR=/workspace/pingj1/soft/CQS_UDN_Pipeline/submodels # To be finalized
-ANNOVARDBDIR=/scratch/yuh9/software/annovar/humandb/
+ANNOVARDBDIR=/scratch/cqs/udn/annovar/humandb/
 AFfile=/scratch/cqs/udn/hg19_g1k2015_roh.tab.gz
 GNOMADdata=/scratch/cqs/udn/gnomad_freq.rdata
 EXAC_metrics_file=/scratch/cqs/udn/fordist_cleaned_exac_r03_march16_z_pli_rec_null_data.txt
@@ -67,19 +67,7 @@ if [[ -n ${nofilterIDs[@]} ]]; then
 fi
 ### preprocessing VCF files ###
 for IDs in $ProBand_ID "${FamilyIDs[@]}"; do
-        if [[ -f $RAW_VCF_DIR/$IDs\.vcf ]]; then
-                ln -s $RAW_VCF_DIR/$IDs.vcf $PREPROCESS_DIR/$IDs\.vcf
-        else
-                if [ $SeqPlatform -eq 1 ]; then
-                        bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*SNPs.*vcf")" > $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
-                        bgzip -c "$(find $RAW_VCF_DIR -regex ".*\-$IDs\-.*INDELs.*vcf")" > $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
-                        tabix -p vcf $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz
-                        tabix -p vcf $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz
-                        bcftools concat -a $PREPROCESS_DIR/$IDs\.SNPs.vcf.gz $PREPROCESS_DIR/$IDs\.INDELs.vcf.gz -o $PREPROCESS_DIR/$IDs\.vcf
-                else
-                        ln -s "$(find $RAW_VCF_DIR -regex ".*$IDs.*vcf")" $PREPROCESS_DIR/$IDs\.vcf
-                fi
-        fi
+	ln -s $RAW_VCF_DIR/${IDs}*.vcf $PREPROCESS_DIR/$IDs\.vcf
 done
 
 ### Filter Probands
@@ -117,7 +105,7 @@ mv $FILTER_DIR\/$ProBand_ID.annovar.txt $WORK_DIR
 
 Rscript $CODES_DIR/collateExacMetrics.R $FILTER_DIR/$ProBand_ID\_step3.0.txt $EXAC_metrics_file
 if [ $SeqPlatform -eq 2 ]; then
-	Rscript $CODES_DIR/polymorphFilter_ha.R $ProBand_ID\_step3.txt $th $n_Homo
+	Rscript $CODES_DIR/polymorphFilter_ha.R $ProBand_ID\_step3.txt $th $n_Homo $GNOMADdata
 else
 	perl $CODES_DIR/extract_fields_from_vcf.pl $PREPROCESS_DIR/$ProBand_ID\.vcf ARIC_AA,ARIC_EA
 	mv $FILTER_DIR/$ProBand_ID\_ARIC_AA,ARIC_EA.tab $FILTER_DIR/$ProBand_ID\_aric.txt
@@ -153,9 +141,9 @@ do
 		convert2annovar.pl --format vcf4 --filter PASS --withzyg --includeinfo $PREPROCESS_DIR/${FamilyIDs[i]}\.vcf > $FILTER_DIR/${FamilyIDs[i]}\_step1.txt
 
 		if [ $SeqPlatform -eq 1 ]; then
-			perl $CODES_DIR/strandRatio_bl.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt $StrandRatioCutOff
+			perl $CODES_DIR/strandRatio_bl.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt
 		else
-			perl $CODES_DIR/strandRatio_ha.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt $StrandRatioCutOff
+			perl $CODES_DIR/strandRatio_ha.pl $FILTER_DIR/${FamilyIDs[i]}\_step1.txt
 		fi
 	else
 		convert2annovar.pl --format vcf4 --withzyg $PREPROCESS_DIR/${FamilyIDs[i]}\.vcf > $FILTER_DIR/${FamilyIDs[i]}\_step0.txt
@@ -227,7 +215,7 @@ tail -n +2 $IH_DIR\/$ProBand_ID\_finalFiltered.txt | cut -f 3 | sort | uniq > $I
 sed -i '/,/s/,.*//' $IH_DIR\/prioritization\/$ProBand_ID\_candGenes.txt
 cp $PhenoFile $IH_DIR\/prioritization\/$ProBand_ID\_terms.txt
 
-/scratch/yuh9/software/phenolyzer/disease_annotation.pl prioritization\/$ProBand_ID\_terms.txt -f -p -ph -logistic --gene prioritization\/$ProBand_ID\_candGenes.txt -out prioritization\/$ProBand_ID 2> prioritization\/phenolyzer.log
+/workspace/pingj1/soft/phenolyzer/disease_annotation.pl prioritization\/$ProBand_ID\_terms.txt -f -p -ph -logistic --gene prioritization\/$ProBand_ID\_candGenes.txt -out prioritization\/$ProBand_ID 2> prioritization\/phenolyzer.log
 Rscript $CODES_DIR/prio_cmm.R $IH_DIR\/prioritization\/$ProBand_ID $IH_DIR\/$ProBand_ID
 
 ### splicing scores ####
