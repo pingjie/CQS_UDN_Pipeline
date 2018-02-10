@@ -19,23 +19,23 @@ if (defined($ARGV[1])) {
 while (<FI>) {
 	if (/\t(\S+)\t (\S+)$/x) { # 9th & 10th columns
 		#print "inside each line format judgement loop\n";
-                @fmt=split /:/,$1;
-                @fmtData=split /:/,$2;
-                undef(%GT);
-                my %GT;
-                for ($j=0;$j<=(scalar(@fmt)-1);$j++) {
-                        $GT{$fmt[$j]} = $fmtData[$j];
-                };
-                $varFrac=0; # or called 'strand ratio'
-     		$AD=0;
-	        if (  exists($GT{'VR'}) and exists($GT{'DP'}) and ($GT{'DP'}>0) ) { # VR is equivalent to AD of Hudson Alpha.
+        @fmt=split /:/,$1;
+        @fmtData=split /:/,$2;
+        undef(%GT);
+        my %GT;
+        for ($j=0;$j<=(scalar(@fmt)-1);$j++) {
+        	$GT{$fmt[$j]} = $fmtData[$j];
+        };
+        $varFrac=0; # or called 'strand ratio'
+     	$AD=0;
+	    if (  exists($GT{'VR'}) and exists($GT{'DP'}) and ($GT{'DP'}>0) ) { # VR is equivalent to AD of Hudson Alpha.
 			#print "inside varFrac judgement loop\n";
 			$AD=$GT{'VR'}; ## VR field has only 1 integer. No multiple Alleles, so addressing way is simpler than HA.
-                        $varFrac = $AD/$GT{'DP'};
-                };
+            $varFrac = $AD/$GT{'DP'};
+        };
 		my $coverage;
 		my $GQ;
-                if ($varFrac>=$th) {
+        if ($varFrac>=$th) {
 			if ( exists($GT{'DP'}) and exists($GT{'RR'}) and exists($GT{'VR'}) ) {
 				$coverage=$GT{'DP'}.':'.$GT{'RR'}.':'.$GT{'VR'};
 			} else {
@@ -50,9 +50,9 @@ while (<FI>) {
 			if ($_ =~ /^((\S+\s){8})(.*)$/) { 
 				$former=$1;
 				$latter=$3;
-                        	print FO "$former$coverage\t$GQ\t$latter\n";
+                print FO "$former$coverage\t$GQ\t$latter\n";
 			} 
-                };
+        };
 	};
 };
 close FI;

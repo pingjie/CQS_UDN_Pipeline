@@ -5,21 +5,21 @@ aric_freqFilter <- function(previous,freqFile,th=0.0001,step=4.1) {
 	th <- as.numeric(th)
 	proID.start <- regexpr('UDN\\d+',previous,perl=T,ignore.case=T)
 	proID <- substr(previous,proID.start,proID.start+8)
-        freq <- read.table(freqFile,header=T,as.is=T,sep='\t',quote='')
-        prev <- read.delim(previous,header=T,as.is=T,colClasses=c(Ref='character',Alt='character'),sep='\t',quote='') # previous file is ANNOVAR-streamlined step3 file.
-        varID <- paste('var',prev[,1],prev[,2],prev[,3],prev[,4],prev[,5],sep='_') 
-        prev <- data.frame(varID=varID,prev[,6:ncol(prev)])
-        var2freq <- data.frame(varID=freq$varID,freqAA=freq$ARIC_AA,freqEA=freq$ARIC_EA)
-        curr <- merge(prev,var2freq,by.x='varID',by.y='varID',all.x=T)
-        judgeRow <- function(x,th) {
-                x=as.numeric(x)
-                y=sapply(x,function(x,th) is.na(x)|x<=th,th)
-                any(y)
-        }
-        idx <- apply(curr[,(ncol(curr)-1):ncol(curr)],1,judgeRow,th=th)
-        curr <- curr[idx,]
-        colnames(curr)[(ncol(curr)-1):ncol(curr)] <- c('ARIC_freqAA','ARIC_freqEA')
-        write.table(curr,paste0(proID,'_step',step,'.txt'),row.names=F,sep='\t',quote=F)
+	freq <- read.table(freqFile,header=T,as.is=T,sep='\t',quote='')
+	prev <- read.delim(previous,header=T,as.is=T,colClasses=c(Ref='character',Alt='character'),sep='\t',quote='') # previous file is ANNOVAR-streamlined step3 file.
+	varID <- paste('var',prev[,1],prev[,2],prev[,3],prev[,4],prev[,5],sep='_') 
+	prev <- data.frame(varID=varID,prev[,6:ncol(prev)])
+	var2freq <- data.frame(varID=freq$varID,freqAA=freq$ARIC_AA,freqEA=freq$ARIC_EA)
+	curr <- merge(prev,var2freq,by.x='varID',by.y='varID',all.x=T)
+	judgeRow <- function(x,th) {
+		x=as.numeric(x)
+		y=sapply(x,function(x,th) is.na(x)|x<=th,th)
+		any(y)
+	}
+	idx <- apply(curr[,(ncol(curr)-1):ncol(curr)],1,judgeRow,th=th)
+	curr <- curr[idx,]
+	colnames(curr)[(ncol(curr)-1):ncol(curr)] <- c('ARIC_freqAA','ARIC_freqEA')
+	write.table(curr,paste0(proID,'_step',step,'.txt'),row.names=F,sep='\t',quote=F)
 }
 
 args=(commandArgs(TRUE))
