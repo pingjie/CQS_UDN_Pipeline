@@ -126,7 +126,7 @@ filterSplicingScores <- function(data) {
         }
         filteredTable <- rbind(filteredTable, data[n, ])
       }
-    } else if (!str_detect(data$varID[n], "_-")) {
+    } else {
       tmpStrand <- geneStrands[data$geneName[n], 1]
       if (is.na(tmpStrand)) {
         print(data$geneName[n])
