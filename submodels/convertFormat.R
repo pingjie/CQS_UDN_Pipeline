@@ -13,6 +13,8 @@ is.empty <- function(x, mode=NULL){
 
 library(data.table)
 library(stringr)
+library(EnsDb.Hsapiens.v75)
+library(AnnotationFilter)
 
 geneomim <- fread("/workspace/UDN/db/genemap2.txt")
 geneStrands <- read.table("/workspace/UDN/db/Homo_sapiens.GRCh37.87.gene.strand", sep = "\t", header = F, row.names = 1, as.is = T)
@@ -25,6 +27,26 @@ compBase <- function(invec) {
 
 trans_sscore <- function(str) {
   return(as.numeric(strsplit(str, "_")[[1]][1]))
+}
+
+calculateIntronicDistance <- function(x) {
+  strand1 <- as.character(strand(exonsBy(EnsDb.Hsapiens.v75, by="gene", filter = GenenameFilter(x$geneName)))[[1]]@values)
+  inVarStartPos <- as.numeric(strsplit(x$varID, "_")[[1]][3])
+
+  dis1 <- min(abs(end(ranges(exonsBy(EnsDb.Hsapiens.v75, by="gene", filter = GenenameFilter(x$geneName)))) - inVarStartPos))
+  dis2 <- min(abs(start(ranges(exonsBy(EnsDb.Hsapiens.v75, by="gene", filter = GenenameFilter(x$geneName)))) - inVarStartPos))
+
+  refSeq <- strsplit(x$varID, "_")[[1]][5]
+  altSeq <- strsplit(x$varID, "_")[[1]][6]
+
+  if (strand1 == "-") {
+    refSeq <- compBase(refSeq)
+    altSeq <- compBase(altSeq)
+  }
+
+  intronicDNAchange <- paste0("c.", min(dis1, dis2), "-", max(dis1, dis2), refSeq, ">", altSeq)
+
+  return(intronicDNAchange)
 }
 
 filterSplicingScores <- function(data) {
@@ -240,7 +262,7 @@ processline <- function(x) {
   } else {
     effect <- paste(x$Func.refGene, x$Score, sep = "\r\n")
     refseq <- ""
-    dnachange <- NA
+    dnachange <- calculateIntronicDistance(x)
     pchange <- NA
   }
   row1 <- c(paste(genename, refseq, sep = "\r\n"), chr, change, as.character(effect), proGT, udnGT, x$qual, round(x$g1kFreq, digits = 4), round(x$mis_z, digits = 2), rep(NA, 3), rank, comment)
